@@ -3,11 +3,16 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended;
+using MonoGame.Extended.Collisions;
 
 namespace BuildingsAndBaddies.Desktop
 {
     public class Game1 : Game
     {
+        private const int MapWidth = 1600;
+        private const int MapHeight = 900;
+
         private enum ClickMode
         {
             AddGuardBot,
@@ -17,6 +22,7 @@ namespace BuildingsAndBaddies.Desktop
         }
 
         private readonly List<AbstractCreature> creatures = new();
+        private readonly CollisionComponent collisionComponent;
 
         private ClickMode currentMode = ClickMode.SetTarget;
 
@@ -27,6 +33,7 @@ namespace BuildingsAndBaddies.Desktop
         private SoundEffect clickSound;
         private SoundEffect dropSound;
         private SoundEffect dustbinSound;
+        private SoundEffect impactSound;
         private SoundEffect snapSound;
 
         private SpriteFont defaultFont;
@@ -49,19 +56,20 @@ namespace BuildingsAndBaddies.Desktop
             IsMouseVisible = true;
 
             graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferWidth = 1600;
-            graphics.PreferredBackBufferHeight = 900;
-            // graphics.IsFullScreen = true;
-            graphics.ApplyChanges();
+
+            collisionComponent = new CollisionComponent(new RectangleF(0,0, MapWidth, MapHeight));
         }
 
 
-#if false
         protected override void Initialize()
         {
             base.Initialize();
+
+            graphics.PreferredBackBufferWidth = MapWidth;
+            graphics.PreferredBackBufferHeight = MapHeight;
+            // graphics.IsFullScreen = true;
+            graphics.ApplyChanges();
         }
-#endif
 
 
         protected override void LoadContent()
@@ -71,6 +79,7 @@ namespace BuildingsAndBaddies.Desktop
             clickSound = Content.Load<SoundEffect>("sounds/click");
             dropSound = Content.Load<SoundEffect>("sounds/drop");
             dustbinSound = Content.Load<SoundEffect>("sounds/dustbin");
+            impactSound = Content.Load<SoundEffect>("sounds/impact");
             snapSound = Content.Load<SoundEffect>("sounds/snap");
 
             defaultFont = Content.Load<SpriteFont>("fonts/default");
@@ -103,29 +112,17 @@ namespace BuildingsAndBaddies.Desktop
                         break;
 
                     case ClickMode.AddGuardBot:
-                        snapSound.Play();
-                        creatures.Add(new GuardBot(guardTexture, currentMouseState.X, currentMouseState.Y));
-                        currentMode = ClickMode.SetTarget;
+                        AddCreature(new GuardBot(guardTexture, currentMouseState.X, currentMouseState.Y, impactSound));
                         break;
 
                     case ClickMode.AddHoverBot:
-                        snapSound.Play();
-                        creatures.Add(new HoverBot(hoverTexture, currentMouseState.X, currentMouseState.Y));
-                        currentMode = ClickMode.SetTarget;
+                        AddCreature(new HoverBot(hoverTexture, currentMouseState.X, currentMouseState.Y, impactSound));
                         break;
 
                     case ClickMode.AddTreadBot:
-                        snapSound.Play();
-                        creatures.Add(new TreadBot(treadTexture, currentMouseState.X, currentMouseState.Y));
-                        currentMode = ClickMode.SetTarget;
+                        AddCreature(new TreadBot(treadTexture, currentMouseState.X, currentMouseState.Y, impactSound));
                         break;
                 }
-            }
-
-            // Update all the creatures
-            foreach (var creature in creatures)
-            {
-                creature.Update(gameTime);
             }
 
             // Handle keyboard events
@@ -157,6 +154,12 @@ namespace BuildingsAndBaddies.Desktop
             {
                 dustbinSound.Play();
                 currentMode = ClickMode.SetTarget;
+
+                foreach (var creature in creatures)
+                {
+                    collisionComponent.Remove(creature);
+                }
+
                 creatures.Clear();
             }
 
@@ -177,6 +180,14 @@ namespace BuildingsAndBaddies.Desktop
                 clickSound.Play();
                 currentMode = ClickMode.AddHoverBot;
             }
+
+            // Update all the creatures
+            foreach (var creature in creatures)
+            {
+                creature.Update(gameTime);
+            }
+
+            collisionComponent.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -203,6 +214,15 @@ namespace BuildingsAndBaddies.Desktop
             spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+
+        private void AddCreature(AbstractCreature creature)
+        {
+            snapSound.Play();
+            creatures.Add(creature);
+            collisionComponent.Insert(creature);
+            currentMode = ClickMode.SetTarget;
         }
 
 

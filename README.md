@@ -20,7 +20,7 @@ Keys:
 * ESC - exit build mode
 * X - exit the game
 
-The only difference between the three is their image.
+The only difference between the three bots is their image - they behave the same (at least for now).
 
 
 ## Goal State
@@ -51,13 +51,20 @@ Other keys initiate behaviors from the villagers and/or baddies.
 
 * Bots - Stephen Challener (Redshrike) - [OpenGameArt](https://opengameart.org/content/roguelike-sprites-redshrike-mods)
 * Interface sounds - [p0ss](https://opengameart.org/users/p0ss) - [Interface sounds starter pack](https://opengameart.org/content/interface-sounds-starter-pack)
+* Impact sounds - [Iwan 'qubodup' Gabovitch](http://opengameart.org/users/qubodup) - [impact](https://opengameart.org/content/impact)
 
 
 # Links
 
 * [Piskel](https://www.piskelapp.com/p/create/sprite) is a handy online sprite editor
+* Collision libraries
+    * [MonoGame.Extended.Collisions](https://www.monogameextended.net/docs/features/collision/collision) - part of [MonoGame.Extended](https://github.com/craftworkgames/MonoGame.Extended)
 * Look at [TexturePacker](https://www.codeandweb.com/texturepacker) for building sprite sheets - [monogame tutorial](https://www.codeandweb.com/texturepacker/tutorials/how-to-create-sprite-sheets-and-animations-with-monogame)
 * Tutorial - [MonoGame: How to Use Sprite Sheets](https://www.industrian.net/tutorials/using-sprite-sheets/) - simple animation of sprites
 * Tutorial - [Monogame - Drawing Text With Spritefonts](http://rbwhitaker.wikidot.com/monogame-drawing-text-with-spritefonts)
 * Library - [Apos.Shapes](https://github.com/Apostolique/Apos.Shapes) - something to consider, to replace DrawLine helper?
+* UI libraries to try out someday:
+    * [Myra](https://github.com/rds1983/Myra) - UI Library for MonoGame, FNA and Stride
+    * [MGUI](https://github.com/Videogamers0/MGUI) - UI framework for MonoGame game engine.
+    * [Apos.Gui](https://github.com/Apostolique/Apos.Gui) - UI library for MonoGame - minimalist - inspired by IMGUI
 

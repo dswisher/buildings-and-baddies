@@ -1,32 +1,37 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
+using MonoGame.Extended.Collisions;
 
 namespace BuildingsAndBaddies.Desktop
 {
-    public class AbstractCreature
+    public class AbstractCreature : ICollisionActor
     {
-        private readonly int width;
-        private readonly int height;
         private readonly Rectangle[] sourceRectangles;
         private readonly Texture2D texture;
         private readonly int frameThreshold;
+        private readonly int width;
+        private readonly int height;
+        private readonly SoundEffect impactSound;
 
         private float frameTimer;
         private int currentFrame;
-        private Vector2 position;
-        private Vector2 target;
+        private Point2 target;
         private float speed;
         private bool moving;
 
 
-        protected AbstractCreature(Texture2D texture, int x, int y, int width, int height, int frames)
+        protected AbstractCreature(Texture2D texture, int x, int y, int width, int height, int frames, SoundEffect impactSound)
         {
             this.texture = texture;
             this.width = width;
             this.height = height;
+            this.impactSound = impactSound;
 
-            position = new Vector2(x, y);
-            target = position;
+            Bounds = new RectangleF(new Vector2(x - width / 2, y - height / 2), new Size2(width, height));
+
+            target = Bounds.Position;
             speed = 200;
 
             sourceRectangles = new Rectangle[frames];
@@ -40,12 +45,12 @@ namespace BuildingsAndBaddies.Desktop
         }
 
 
+        public IShapeF Bounds { get; }
+
+
         public void Goto(int x, int y)
         {
-            target = new Vector2(x, y);
-
-            // TODO - don't jump there, set a target/path to move there
-            // position = new Vector2(x, y);
+            target = new Vector2(x - width / 2, y - height / 2);
         }
 
 
@@ -65,15 +70,16 @@ namespace BuildingsAndBaddies.Desktop
             }
 
             // If not at the target, move towards it
-            var delta = target - position;
+            var delta = target - Bounds.Position;
             if (delta.Length() > 1.0)
             {
                 delta.Normalize();
-                position += delta * speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                Bounds.Position += delta * speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
                 moving = true;
             }
             else
             {
+                target = Bounds.Position;      // stop
                 moving = false;
             }
         }
@@ -82,23 +88,46 @@ namespace BuildingsAndBaddies.Desktop
         public void Draw(SpriteBatch spriteBatch, bool debugMode)
         {
             // If not at the target, draw a line to the target, if in debug mode
-            if (debugMode && moving)
+            if (debugMode)
             {
-                spriteBatch.DrawLine(position, target, Color.Red);
+                if (moving)
+                {
+                    spriteBatch.DrawLine(Bounds.Position, target, Color.Red);
+                    spriteBatch.DrawRectangle((RectangleF) Bounds, Color.Red);
+                }
+                else
+                {
+                    spriteBatch.DrawRectangle((RectangleF) Bounds, Color.Green);
+                }
             }
 
             // Draw it!
             spriteBatch.Draw(
                 texture,
-                position,
+                Bounds.Position,
                 sourceRectangles[currentFrame],
                 Color.White,
                 0f,
-                new Vector2(width / 2f, height / 2f),
+                Vector2.Zero,
                 Vector2.One,
                 SpriteEffects.None,
                 0f
             );
+        }
+
+
+        public void OnCollision(CollisionEventArgs collisionInfo)
+        {
+            impactSound.Play();
+
+            // TODO - improve collision handling - for now, just stop
+            if (moving)
+            {
+                Bounds.Position -= collisionInfo.PenetrationVector;
+            }
+
+            target = Bounds.Position;      // stop
+            moving = false;
         }
     }
 }
