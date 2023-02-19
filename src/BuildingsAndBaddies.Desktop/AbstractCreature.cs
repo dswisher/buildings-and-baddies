@@ -14,6 +14,9 @@ namespace BuildingsAndBaddies.Desktop
         private float frameTimer;
         private int currentFrame;
         private Vector2 position;
+        private Vector2 target;
+        private float speed;
+        private bool moving;
 
 
         protected AbstractCreature(Texture2D texture, int x, int y, int width, int height, int frames)
@@ -23,6 +26,8 @@ namespace BuildingsAndBaddies.Desktop
             this.height = height;
 
             position = new Vector2(x, y);
+            target = position;
+            speed = 200;
 
             sourceRectangles = new Rectangle[frames];
 
@@ -37,13 +42,16 @@ namespace BuildingsAndBaddies.Desktop
 
         public void Goto(int x, int y)
         {
+            target = new Vector2(x, y);
+
             // TODO - don't jump there, set a target/path to move there
-            position = new Vector2(x, y);
+            // position = new Vector2(x, y);
         }
 
 
         public void Update(GameTime gameTime)
         {
+            // Animate the sprite
             if (frameTimer > frameThreshold)
             {
                 // Time to advance to the next frame
@@ -55,11 +63,30 @@ namespace BuildingsAndBaddies.Desktop
                 // Not yet time to advance, just increment the timer
                 frameTimer += gameTime.ElapsedGameTime.Milliseconds;
             }
+
+            // If not at the target, move towards it
+            var delta = target - position;
+            if (delta.Length() > 1.0)
+            {
+                delta.Normalize();
+                position += delta * speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                moving = true;
+            }
+            else
+            {
+                moving = false;
+            }
         }
 
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch spriteBatch, bool debugMode)
         {
+            // If not at the target, draw a line to the target, if in debug mode
+            if (debugMode && moving)
+            {
+                spriteBatch.DrawLine(position, target, Color.Red);
+            }
+
             // Draw it!
             spriteBatch.Draw(
                 texture,

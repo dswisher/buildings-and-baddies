@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -23,8 +24,20 @@ namespace BuildingsAndBaddies.Desktop
         private Texture2D hoverTexture;
         private Texture2D treadTexture;
 
+        private SoundEffect clickSound;
+        private SoundEffect dropSound;
+        private SoundEffect dustbinSound;
+        private SoundEffect snapSound;
+
+        private SpriteFont defaultFont;
+
         private MouseState currentMouseState;
         private MouseState lastMouseState;
+
+        private KeyboardState currentKeyboardState;
+        private KeyboardState lastKeyboardState;
+
+        private bool debugMode;
 
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
@@ -55,6 +68,13 @@ namespace BuildingsAndBaddies.Desktop
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            clickSound = Content.Load<SoundEffect>("sounds/click");
+            dropSound = Content.Load<SoundEffect>("sounds/drop");
+            dustbinSound = Content.Load<SoundEffect>("sounds/dustbin");
+            snapSound = Content.Load<SoundEffect>("sounds/snap");
+
+            defaultFont = Content.Load<SpriteFont>("fonts/default");
+
             // TODO - use a sprite sheet
             // TODO - how to load content and hook it to creatures? This is ugly.
 
@@ -66,12 +86,6 @@ namespace BuildingsAndBaddies.Desktop
 
         protected override void Update(GameTime gameTime)
         {
-            // Default exit settings
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-            {
-                Exit();
-            }
-
             // Process mouse clicks
             lastMouseState = currentMouseState;
             currentMouseState = Mouse.GetState();
@@ -81,6 +95,7 @@ namespace BuildingsAndBaddies.Desktop
                 switch (currentMode)
                 {
                     case ClickMode.SetTarget:
+                        // TODO - need a sound effect for this
                         foreach (var creature in creatures)
                         {
                             creature.Goto(currentMouseState.X, currentMouseState.Y);
@@ -88,16 +103,19 @@ namespace BuildingsAndBaddies.Desktop
                         break;
 
                     case ClickMode.AddGuardBot:
+                        snapSound.Play();
                         creatures.Add(new GuardBot(guardTexture, currentMouseState.X, currentMouseState.Y));
                         currentMode = ClickMode.SetTarget;
                         break;
 
                     case ClickMode.AddHoverBot:
+                        snapSound.Play();
                         creatures.Add(new HoverBot(hoverTexture, currentMouseState.X, currentMouseState.Y));
                         currentMode = ClickMode.SetTarget;
                         break;
 
                     case ClickMode.AddTreadBot:
+                        snapSound.Play();
                         creatures.Add(new TreadBot(treadTexture, currentMouseState.X, currentMouseState.Y));
                         currentMode = ClickMode.SetTarget;
                         break;
@@ -111,20 +129,52 @@ namespace BuildingsAndBaddies.Desktop
             }
 
             // Handle keyboard events
-            var keyboardState = Keyboard.GetState();
+            lastKeyboardState = currentKeyboardState;
+            currentKeyboardState = Keyboard.GetState();
 
-            if (keyboardState.IsKeyDown(Keys.G))
+            if (currentKeyboardState.IsKeyDown(Keys.D) && !lastKeyboardState.IsKeyDown(Keys.D))
             {
+                clickSound.Play();
+                debugMode = !debugMode;
+            }
+
+            if (currentKeyboardState.IsKeyDown(Keys.Escape) && !lastKeyboardState.IsKeyDown(Keys.Escape))
+            {
+                if (currentMode != ClickMode.SetTarget)
+                {
+                    dropSound.Play();
+                    currentMode = ClickMode.SetTarget;
+                }
+            }
+
+            if (currentKeyboardState.IsKeyDown(Keys.X) && !lastKeyboardState.IsKeyDown(Keys.X))
+            {
+                // TODO - how to play a sound effect and have the game wait until done?
+                Exit();
+            }
+
+            if (currentKeyboardState.IsKeyDown(Keys.C) && !lastKeyboardState.IsKeyDown(Keys.C))
+            {
+                dustbinSound.Play();
+                currentMode = ClickMode.SetTarget;
+                creatures.Clear();
+            }
+
+            if (currentKeyboardState.IsKeyDown(Keys.G) && !lastKeyboardState.IsKeyDown(Keys.G))
+            {
+                clickSound.Play();
                 currentMode = ClickMode.AddGuardBot;
             }
 
-            if (keyboardState.IsKeyDown(Keys.T))
+            if (currentKeyboardState.IsKeyDown(Keys.T) && !lastKeyboardState.IsKeyDown(Keys.T))
             {
+                clickSound.Play();
                 currentMode = ClickMode.AddTreadBot;
             }
 
-            if (keyboardState.IsKeyDown(Keys.H))
+            if (currentKeyboardState.IsKeyDown(Keys.H) && !lastKeyboardState.IsKeyDown(Keys.H))
             {
+                clickSound.Play();
                 currentMode = ClickMode.AddHoverBot;
             }
 
@@ -140,15 +190,56 @@ namespace BuildingsAndBaddies.Desktop
 
             foreach (var creature in creatures)
             {
-                creature.Draw(spriteBatch);
+                creature.Draw(spriteBatch, debugMode);
             }
 
-            // TODO - if in a "build mode", draw the item-to-build at the current mouse position
-            // TODO - draw a HUD that shows the current mode and whatnot
+            DrawBuildItem();
+
+            if (debugMode)
+            {
+                spriteBatch.DrawString(defaultFont, "Debug", new Vector2(10, 875), Color.Black);
+            }
 
             spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+
+        private void DrawBuildItem()
+        {
+            Texture2D texture;
+            int width;
+            int height;
+
+            switch (currentMode)
+            {
+                case ClickMode.AddGuardBot:
+                    texture = guardTexture;
+                    width = 28;
+                    height = 31;
+                    break;
+
+                case ClickMode.AddHoverBot:
+                    texture = hoverTexture;
+                    width = 32;
+                    height = 30;
+                    break;
+
+                case ClickMode.AddTreadBot:
+                    texture = treadTexture;
+                    width = 28;
+                    height = 31;
+                    break;
+
+                default:
+                    return;
+            }
+
+            var sourceRectangle = new Rectangle(0, 0, width, height);
+            var position = new Vector2(currentMouseState.X - width / 2, currentMouseState.Y - height / 2);
+
+            spriteBatch.Draw(texture, position, sourceRectangle, Color.White);
         }
     }
 }
