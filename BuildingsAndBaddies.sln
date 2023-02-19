@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C05637A9-0F1A-46C6-AE38-D02262577087}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingsAndBaddies.Desktop", "src\BuildingsAndBaddies.Desktop\BuildingsAndBaddies.Desktop.csproj", "{CA9B39FF-4F13-4A1D-B50F-910632389C23}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CA9B39FF-4F13-4A1D-B50F-910632389C23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA9B39FF-4F13-4A1D-B50F-910632389C23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA9B39FF-4F13-4A1D-B50F-910632389C23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA9B39FF-4F13-4A1D-B50F-910632389C23}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CA9B39FF-4F13-4A1D-B50F-910632389C23} = {C05637A9-0F1A-46C6-AE38-D02262577087}
+	EndGlobalSection
+EndGlobal
