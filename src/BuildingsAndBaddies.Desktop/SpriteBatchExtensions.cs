@@ -8,18 +8,6 @@ namespace BuildingsAndBaddies.Desktop
     {
         private static Texture2D shapeTexture;
 
-        private static Texture2D GetTexture(SpriteBatch spriteBatch)
-        {
-            if (shapeTexture == null)
-            {
-                shapeTexture = new Texture2D(spriteBatch.GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
-                shapeTexture.SetData(new[] {Color.White});
-            }
-
-            return shapeTexture;
-        }
-
-
         // From: https://community.monogame.net/t/line-drawing/6962/4
         public static void DrawLine(this SpriteBatch spriteBatch, Vector2 point1, Vector2 point2, Color color, float thickness = 1f)
         {
@@ -51,6 +39,18 @@ namespace BuildingsAndBaddies.Desktop
             spriteBatch.Draw(texture, topLeft, null, color, 0f, Vector2.Zero, verticalScale, SpriteEffects.None, 0);
             spriteBatch.Draw(texture, topRight, null, color, 0f, Vector2.Zero, verticalScale, SpriteEffects.None, 0);
             spriteBatch.Draw(texture, bottomLeft, null, color, 0f, Vector2.Zero, horizontalScale, SpriteEffects.None, 0);
+        }
+
+
+        private static Texture2D GetTexture(SpriteBatch spriteBatch)
+        {
+            if (shapeTexture == null)
+            {
+                shapeTexture = new Texture2D(spriteBatch.GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
+                shapeTexture.SetData(new[] { Color.White });
+            }
+
+            return shapeTexture;
         }
     }
 }

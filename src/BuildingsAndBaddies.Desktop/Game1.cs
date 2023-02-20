@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using BuildingsAndBaddies.Desktop.Items;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
@@ -8,21 +9,17 @@ namespace BuildingsAndBaddies.Desktop
 {
     public class Game1 : Game
     {
-        private enum ClickMode
-        {
-            AddGuardBot,
-            AddHoverBot,
-            AddTreadBot,
-            SetTarget
-        }
-
-        private readonly List<AbstractCreature> creatures = new();
+        private readonly List<AbstractMapItem> mapItems = new();
+        private readonly Vector2 fpsPos;
 
         private ClickMode currentMode = ClickMode.SetTarget;
 
         private Texture2D guardTexture;
         private Texture2D hoverTexture;
         private Texture2D treadTexture;
+
+        private Texture2D[] buildingTextures;
+        private int currentBuildingTexture;
 
         private SoundEffect clickSound;
         private SoundEffect dropSound;
@@ -31,6 +28,9 @@ namespace BuildingsAndBaddies.Desktop
         private SoundEffect snapSound;
 
         private SpriteFont defaultFont;
+
+        private SimpleFps fps;
+        private bool showFps;
 
         private MouseState currentMouseState;
         private MouseState lastMouseState;
@@ -50,10 +50,23 @@ namespace BuildingsAndBaddies.Desktop
             IsMouseVisible = true;
 
             graphics = new GraphicsDeviceManager(this);
+
+            // graphics.IsFullScreen = true;
             graphics.PreferredBackBufferWidth = 1600;
             graphics.PreferredBackBufferHeight = 900;
-            // graphics.IsFullScreen = true;
             graphics.ApplyChanges();
+
+            fpsPos = new Vector2(10, 10);
+        }
+
+
+        private enum ClickMode
+        {
+            AddGuardBot,
+            AddHoverBot,
+            AddTreadBot,
+            AddBuilding,
+            SetTarget
         }
 
 
@@ -83,6 +96,15 @@ namespace BuildingsAndBaddies.Desktop
             guardTexture = Content.Load<Texture2D>("creatures/guardbot1");
             hoverTexture = Content.Load<Texture2D>("creatures/hoverbot1");
             treadTexture = Content.Load<Texture2D>("creatures/treadbot1");
+
+            buildingTextures = new Texture2D[6];
+            for (var i = 0; i < buildingTextures.Length; i++)
+            {
+                // _02 thru _07
+                buildingTextures[i] = Content.Load<Texture2D>($"buildings/scifiStructure_0{i + 2}");
+            }
+
+            fps = new SimpleFps(defaultFont);
         }
 
 
@@ -98,36 +120,46 @@ namespace BuildingsAndBaddies.Desktop
                 {
                     case ClickMode.SetTarget:
                         // TODO - need a sound effect for this
-                        foreach (var creature in creatures)
+                        foreach (var item in mapItems)
                         {
-                            creature.Goto(currentMouseState.X, currentMouseState.Y);
+                            if (item is AbstractMovableItem ac)
+                            {
+                                ac.Goto(currentMouseState.X, currentMouseState.Y);
+                            }
                         }
+
                         break;
 
                     case ClickMode.AddGuardBot:
                         snapSound.Play();
-                        creatures.Add(new GuardBot(guardTexture, currentMouseState.X, currentMouseState.Y));
+                        mapItems.Add(new GuardBot(guardTexture, currentMouseState.X, currentMouseState.Y));
                         currentMode = ClickMode.SetTarget;
                         break;
 
                     case ClickMode.AddHoverBot:
                         snapSound.Play();
-                        creatures.Add(new HoverBot(hoverTexture, currentMouseState.X, currentMouseState.Y));
+                        mapItems.Add(new HoverBot(hoverTexture, currentMouseState.X, currentMouseState.Y));
                         currentMode = ClickMode.SetTarget;
                         break;
 
                     case ClickMode.AddTreadBot:
                         snapSound.Play();
-                        creatures.Add(new TreadBot(treadTexture, currentMouseState.X, currentMouseState.Y));
+                        mapItems.Add(new TreadBot(treadTexture, currentMouseState.X, currentMouseState.Y));
+                        currentMode = ClickMode.SetTarget;
+                        break;
+
+                    case ClickMode.AddBuilding:
+                        snapSound.Play();
+                        mapItems.Add(new SimpleBuilding(buildingTextures[currentBuildingTexture], currentMouseState.X, currentMouseState.Y));
                         currentMode = ClickMode.SetTarget;
                         break;
                 }
             }
 
             // Update all the creatures
-            foreach (var creature in creatures)
+            foreach (var item in mapItems)
             {
-                creature.Update(gameTime, creatures);
+                item.Update(gameTime, mapItems);
             }
 
             // Handle keyboard events
@@ -138,6 +170,12 @@ namespace BuildingsAndBaddies.Desktop
             {
                 clickSound.Play();
                 debugMode = !debugMode;
+            }
+
+            if (currentKeyboardState.IsKeyDown(Keys.F) && !lastKeyboardState.IsKeyDown(Keys.F))
+            {
+                clickSound.Play();
+                showFps = !showFps;
             }
 
             if (currentKeyboardState.IsKeyDown(Keys.Escape) && !lastKeyboardState.IsKeyDown(Keys.Escape))
@@ -159,7 +197,7 @@ namespace BuildingsAndBaddies.Desktop
             {
                 dustbinSound.Play();
                 currentMode = ClickMode.SetTarget;
-                creatures.Clear();
+                mapItems.Clear();
             }
 
             if (currentKeyboardState.IsKeyDown(Keys.G) && !lastKeyboardState.IsKeyDown(Keys.G))
@@ -174,11 +212,25 @@ namespace BuildingsAndBaddies.Desktop
                 currentMode = ClickMode.AddTreadBot;
             }
 
+            if (currentKeyboardState.IsKeyDown(Keys.B) && !lastKeyboardState.IsKeyDown(Keys.B))
+            {
+                clickSound.Play();
+
+                if (currentMode == ClickMode.AddBuilding)
+                {
+                    currentBuildingTexture = (currentBuildingTexture + 1) % buildingTextures.Length;
+                }
+
+                currentMode = ClickMode.AddBuilding;
+            }
+
             if (currentKeyboardState.IsKeyDown(Keys.H) && !lastKeyboardState.IsKeyDown(Keys.H))
             {
                 clickSound.Play();
                 currentMode = ClickMode.AddHoverBot;
             }
+
+            fps.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -190,9 +242,14 @@ namespace BuildingsAndBaddies.Desktop
 
             spriteBatch.Begin();
 
-            foreach (var creature in creatures)
+            foreach (var item in mapItems)
             {
-                creature.Draw(spriteBatch, debugMode);
+                item.Draw(spriteBatch, debugMode);
+            }
+
+            if (showFps)
+            {
+                fps.Draw(spriteBatch, fpsPos, Color.Blue);
             }
 
             DrawBuildItem();
@@ -232,6 +289,12 @@ namespace BuildingsAndBaddies.Desktop
                     texture = treadTexture;
                     width = 28;
                     height = 31;
+                    break;
+
+                case ClickMode.AddBuilding:
+                    texture = buildingTextures[currentBuildingTexture];
+                    width = 64;
+                    height = 64;
                     break;
 
                 default:

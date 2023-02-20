@@ -12,8 +12,10 @@ Clicking the mouse sets the target for all active creatures to the current mouse
 
 Keys:
 
+* B - add a building (hit again to cycle between buildings)
 * C - remove all creatures from the game
 * D - toggle debug mode (draws pathing on screen)
+* F - toggle FPS display
 * G - create a guard bot at the next mouse click
 * H - create a hover bot at the next mouse click
 * T - create a guard bot at the next mouse click
@@ -47,9 +49,21 @@ Other keys initiate behaviors from the villagers and/or baddies.
 * T - all baddies switch their target to the item under the cursor.
 
 
+# TODO List
+
+* Add Pathfinding
+* Add baddies
+* Add health bars
+* Add targeting
+* Add projectiles and damage
+* Do not let bots be added on top of other bots/buildings
+* Add some sort of selection mode (select all hover bots, etc)
+
+
 # Art and Sound Credits
 
 * Bots - Stephen Challener (Redshrike) - [OpenGameArt](https://opengameart.org/content/roguelike-sprites-redshrike-mods)
+* Buildings - [Kenney.nl](https://www.kenney.nl/) - [OpenGameArt](https://opengameart.org/content/sci-fi-rts-120-sprites)
 * Interface sounds - [p0ss](https://opengameart.org/users/p0ss) - [Interface sounds starter pack](https://opengameart.org/content/interface-sounds-starter-pack)
 * Impact sounds - [Iwan 'qubodup' Gabovitch](http://opengameart.org/users/qubodup) - [impact](https://opengameart.org/content/impact)
 
@@ -68,4 +82,5 @@ Other keys initiate behaviors from the villagers and/or baddies.
     * [Myra](https://github.com/rds1983/Myra) - UI Library for MonoGame, FNA and Stride
     * [MGUI](https://github.com/Videogamers0/MGUI) - UI framework for MonoGame game engine.
     * [Apos.Gui](https://github.com/Apostolique/Apos.Gui) - UI library for MonoGame - minimalist - inspired by IMGUI
-
+* More Art
+    * Terrain - [Kenney.nl](https://www.kenney.nl/) - [OpenGameArt](https://opengameart.org/content/tower-defense-300-tilessprites)
