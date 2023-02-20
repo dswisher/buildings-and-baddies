@@ -43,7 +43,7 @@ namespace BuildingsAndBaddies.Desktop.Items
         protected Vector2 Position { get; set; }
 
 
-        public virtual void Update(GameTime gameTime, List<AbstractMapItem> items)
+        public virtual void Update(GameTime gameTime, List<AbstractMapItem> items, PathGrid pathGrid)
         {
             // Animate the sprite
             if (frameTimer > frameThreshold)

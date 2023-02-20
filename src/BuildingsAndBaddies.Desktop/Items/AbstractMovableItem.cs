@@ -40,17 +40,18 @@ namespace BuildingsAndBaddies.Desktop.Items
         /// </summary>
         /// <param name="x">The X coordinate desired new center of the sprite.</param>
         /// <param name="y">The Y coordinate desired new center of the sprite.</param>
-        public void Goto(int x, int y)
+        /// <param name="pathGrid">The path grid used to find a path.</param>
+        public void Goto(int x, int y, PathGrid pathGrid)
         {
             // TODO - need to find a path
             target = new Vector2(x, y);
         }
 
 
-        public override void Update(GameTime gameTime, List<AbstractMapItem> items)
+        public override void Update(GameTime gameTime, List<AbstractMapItem> items, PathGrid pathGrid)
         {
             // Animate the sprite
-            base.Update(gameTime, items);
+            base.Update(gameTime, items, pathGrid);
 
             // If not at the target, move towards it
             var direction = target - Position;
@@ -86,8 +87,15 @@ namespace BuildingsAndBaddies.Desktop.Items
                 // Move (or try to)
                 if (delta != Vector2.Zero)
                 {
+                    // Remove the old position from the grid
+                    pathGrid.RemoveItem(Bounds);
+
+                    // Update the position and the bounds
                     Position += delta;
                     Bounds = new Rectangle((int)(Position.X - Width / 2f), (int)(Position.Y - Height / 2f), Width, Height);
+
+                    // Add the new position into the grid
+                    pathGrid.AddItem(Bounds);
                 }
             }
             else
@@ -121,7 +129,7 @@ namespace BuildingsAndBaddies.Desktop.Items
 
 
         /// <summary>
-        /// If this creature moved left by dx, would it intersect the other creature?
+        /// If this creature moved left by dx, determine if it intersect the other creature.
         /// </summary>
         /// <param name="other">The other creature to check.</param>
         /// <param name="dx">The amount to move left. Should be a negative value.</param>
@@ -148,7 +156,7 @@ namespace BuildingsAndBaddies.Desktop.Items
 
 
         /// <summary>
-        /// If this creature moved right by dx, would it intersect the other creature?
+        /// If this creature moved right by dx, determine if it intersect the other creature.
         /// </summary>
         /// <param name="other">The other creature to check.</param>
         /// <param name="dx">The amount to move right. Should be a positive value.</param>
@@ -175,7 +183,7 @@ namespace BuildingsAndBaddies.Desktop.Items
 
 
         /// <summary>
-        /// If this creature moved down by dy, would it intersect the other creature?
+        /// If this creature moved down by dy, determine if it intersect the other creature.
         /// </summary>
         /// <param name="other">The other creature to check.</param>
         /// <param name="dy">The amount to move down. Should be a positive value.</param>
@@ -202,7 +210,7 @@ namespace BuildingsAndBaddies.Desktop.Items
 
 
         /// <summary>
-        /// If this creature moved up by dy, would it intersect the other creature?
+        /// If this creature moved up by dy, determine if it intersect the other creature.
         /// </summary>
         /// <param name="other">The other creature to check.</param>
         /// <param name="dy">The amount to move up. Should be a negative value.</param>

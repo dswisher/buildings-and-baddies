@@ -12,9 +12,11 @@ namespace BuildingsAndBaddies.Desktop
 {
     public class Game1 : Game
     {
-        private const int MapWidth = 1600;
-        private const int MapHeight = 900;
+        // For now, make sure the map is an integral number of grid cells
+        private const int MapWidth = 100 * PathGrid.CellSize;   // 1600
+        private const int MapHeight = 60 * PathGrid.CellSize;   //  960
 
+        private readonly PathGrid pathGrid;
         private readonly List<AbstractMapItem> mapItems = new();
         private readonly Vector2 fpsPos;
 
@@ -38,6 +40,8 @@ namespace BuildingsAndBaddies.Desktop
 
         private SimpleFps fps;
         private bool showFps;
+
+        private bool showPathGrid;
 
         private MouseState currentMouseState;
         private MouseState lastMouseState;
@@ -64,6 +68,8 @@ namespace BuildingsAndBaddies.Desktop
             graphics.PreferredBackBufferHeight = MapHeight;
             graphics.ApplyChanges();
 
+            pathGrid = new PathGrid(GraphicsDevice, MapWidth, MapHeight);
+
             fpsPos = new Vector2(10, 10);
         }
 
@@ -76,14 +82,6 @@ namespace BuildingsAndBaddies.Desktop
             AddBuilding,
             Normal
         }
-
-
-#if false
-        protected override void Initialize()
-        {
-            base.Initialize();
-        }
-#endif
 
 
         protected override void LoadContent()
@@ -131,7 +129,7 @@ namespace BuildingsAndBaddies.Desktop
                     {
                         if (item is AbstractMovableItem ac)
                         {
-                            ac.Goto(currentMouseState.X, currentMouseState.Y);
+                            ac.Goto(currentMouseState.X, currentMouseState.Y, pathGrid);
                         }
                     }
                 }
@@ -147,7 +145,7 @@ namespace BuildingsAndBaddies.Desktop
             {
                 foreach (var item in mapItems)
                 {
-                    item.Update(gameTime, mapItems);
+                    item.Update(gameTime, mapItems, pathGrid);
                 }
             }
 
@@ -173,6 +171,12 @@ namespace BuildingsAndBaddies.Desktop
                 paused = !paused;
             }
 
+            if (currentKeyboardState.IsKeyDown(Keys.P) && !lastKeyboardState.IsKeyDown(Keys.P))
+            {
+                clickSound.Play();
+                showPathGrid = !showPathGrid;
+            }
+
             if (currentKeyboardState.IsKeyDown(Keys.Escape) && !lastKeyboardState.IsKeyDown(Keys.Escape))
             {
                 if (currentMode != ClickMode.Normal)
@@ -192,6 +196,12 @@ namespace BuildingsAndBaddies.Desktop
             {
                 dustbinSound.Play();
                 currentMode = ClickMode.Normal;
+
+                foreach (var item in mapItems)
+                {
+                    pathGrid.RemoveItem(item.Bounds);
+                }
+
                 mapItems.Clear();
             }
 
@@ -237,21 +247,21 @@ namespace BuildingsAndBaddies.Desktop
 
             spriteBatch.Begin();
 
+            if (showPathGrid)
+            {
+                pathGrid.Draw(spriteBatch);
+            }
+
             foreach (var item in mapItems)
             {
                 item.Draw(spriteBatch, debugMode);
-            }
-
-            if (showFps)
-            {
-                fps.Draw(spriteBatch, fpsPos, Color.Blue);
             }
 
             DrawBuildItem();
 
             if (debugMode)
             {
-                spriteBatch.DrawString(defaultFont, "Debug", new Vector2(10, 875), Color.Black);
+                spriteBatch.DrawString(defaultFont, "Debug", new Vector2(10, MapHeight - 25), Color.Black);
             }
 
             if (paused)
@@ -261,6 +271,11 @@ namespace BuildingsAndBaddies.Desktop
                 var size = defaultFont.MeasureString(pauseMsg);
                 var pos = new Vector2(MapWidth / 2f - size.X / 2, MapHeight / 2f - size.Y / 2);
                 spriteBatch.DrawString(defaultFont, pauseMsg, pos, Color.Red);
+            }
+
+            if (showFps)
+            {
+                fps.Draw(spriteBatch, fpsPos, Color.Blue);
             }
 
             spriteBatch.End();
@@ -276,28 +291,34 @@ namespace BuildingsAndBaddies.Desktop
                 return;
             }
 
+            AbstractMapItem item;
+
             switch (currentMode)
             {
                 case ClickMode.AddGuardBot:
-                    snapSound.Play();
-                    mapItems.Add(new GuardBot(guardTexture, currentMouseState.X, currentMouseState.Y));
+                    item = new GuardBot(guardTexture, currentMouseState.X, currentMouseState.Y);
                     break;
 
                 case ClickMode.AddHoverBot:
-                    snapSound.Play();
-                    mapItems.Add(new HoverBot(hoverTexture, currentMouseState.X, currentMouseState.Y));
+                    item = new HoverBot(hoverTexture, currentMouseState.X, currentMouseState.Y);
                     break;
 
                 case ClickMode.AddTreadBot:
-                    snapSound.Play();
-                    mapItems.Add(new TreadBot(treadTexture, currentMouseState.X, currentMouseState.Y));
+                    item = new TreadBot(treadTexture, currentMouseState.X, currentMouseState.Y);
                     break;
 
                 case ClickMode.AddBuilding:
-                    snapSound.Play();
-                    mapItems.Add(new SimpleBuilding(buildingTextures[currentBuildingTexture], currentMouseState.X, currentMouseState.Y));
+                    item = new SimpleBuilding(buildingTextures[currentBuildingTexture], currentMouseState.X, currentMouseState.Y);
                     break;
+
+                default:
+                    return;
             }
+
+            snapSound.Play();
+            mapItems.Add(item);
+
+            pathGrid.AddItem(item.Bounds);
         }
 
 

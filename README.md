@@ -20,6 +20,7 @@ Keys:
 * F - toggle FPS display
 * G - enter guard bot building mode
 * H - enter hover bot building mode
+* P - toggle display of the path grid
 * T - enter tread bot building mode
 * X - exit the game
 * ESC - exit build mode
