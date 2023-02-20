@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Doug Swisher. All Rights Reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using System.Collections.Generic;
 using BuildingsAndBaddies.Desktop.Items;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
