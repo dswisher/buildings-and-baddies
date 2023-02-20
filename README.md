@@ -8,19 +8,22 @@ One of the main goals of the POC is to test pathfinding and crowd control.
 ## Current State
 
 Working towards figuring out collision detection and pathing.
-Clicking the mouse sets the target for all active creatures to the current mouse position.
+Right-clicking the mouse sets the target for all active creatures to the current mouse position.
+
+In the building mode, left-click to build an item.
 
 Keys:
 
-* B - add a building (hit again to cycle between buildings)
+* B - enter building build mode (hit again to cycle between buildings)
 * C - remove all creatures from the game
 * D - toggle debug mode (draws pathing on screen)
 * F - toggle FPS display
-* G - create a guard bot at the next mouse click
-* H - create a hover bot at the next mouse click
-* T - create a guard bot at the next mouse click
-* ESC - exit build mode
+* G - enter guard bot building mode
+* H - enter hover bot building mode
+* T - enter tread bot building mode
 * X - exit the game
+* ESC - exit build mode
+* SPACE - pause the game
 
 Hover bots are faster than guard bots, and guard bots are faster than tread bots.
 
@@ -52,6 +55,7 @@ Other keys initiate behaviors from the villagers and/or baddies.
 # TODO List
 
 * Add Pathfinding
+* Add a way to build multiple items at once
 * Add baddies
 * Add health bars
 * Add targeting

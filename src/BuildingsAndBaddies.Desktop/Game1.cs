@@ -12,10 +12,14 @@ namespace BuildingsAndBaddies.Desktop
 {
     public class Game1 : Game
     {
+        private const int MapWidth = 1600;
+        private const int MapHeight = 900;
+
         private readonly List<AbstractMapItem> mapItems = new();
         private readonly Vector2 fpsPos;
 
-        private ClickMode currentMode = ClickMode.SetTarget;
+        private ClickMode currentMode = ClickMode.Normal;
+        private bool buildBlocked;
 
         private Texture2D guardTexture;
         private Texture2D hoverTexture;
@@ -42,6 +46,7 @@ namespace BuildingsAndBaddies.Desktop
         private KeyboardState lastKeyboardState;
 
         private bool debugMode;
+        private bool paused;
 
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
@@ -55,8 +60,8 @@ namespace BuildingsAndBaddies.Desktop
             graphics = new GraphicsDeviceManager(this);
 
             // graphics.IsFullScreen = true;
-            graphics.PreferredBackBufferWidth = 1600;
-            graphics.PreferredBackBufferHeight = 900;
+            graphics.PreferredBackBufferWidth = MapWidth;
+            graphics.PreferredBackBufferHeight = MapHeight;
             graphics.ApplyChanges();
 
             fpsPos = new Vector2(10, 10);
@@ -69,7 +74,7 @@ namespace BuildingsAndBaddies.Desktop
             AddHoverBot,
             AddTreadBot,
             AddBuilding,
-            SetTarget
+            Normal
         }
 
 
@@ -117,52 +122,33 @@ namespace BuildingsAndBaddies.Desktop
             lastMouseState = currentMouseState;
             currentMouseState = Mouse.GetState();
 
-            if (lastMouseState.LeftButton == ButtonState.Released && currentMouseState.LeftButton == ButtonState.Pressed)
+            if (lastMouseState.RightButton == ButtonState.Released && currentMouseState.RightButton == ButtonState.Pressed)
             {
-                switch (currentMode)
+                if (currentMode == ClickMode.Normal)
                 {
-                    case ClickMode.SetTarget:
-                        // TODO - need a sound effect for this
-                        foreach (var item in mapItems)
+                    // TODO - need a sound effect for this
+                    foreach (var item in mapItems)
+                    {
+                        if (item is AbstractMovableItem ac)
                         {
-                            if (item is AbstractMovableItem ac)
-                            {
-                                ac.Goto(currentMouseState.X, currentMouseState.Y);
-                            }
+                            ac.Goto(currentMouseState.X, currentMouseState.Y);
                         }
-
-                        break;
-
-                    case ClickMode.AddGuardBot:
-                        snapSound.Play();
-                        mapItems.Add(new GuardBot(guardTexture, currentMouseState.X, currentMouseState.Y));
-                        currentMode = ClickMode.SetTarget;
-                        break;
-
-                    case ClickMode.AddHoverBot:
-                        snapSound.Play();
-                        mapItems.Add(new HoverBot(hoverTexture, currentMouseState.X, currentMouseState.Y));
-                        currentMode = ClickMode.SetTarget;
-                        break;
-
-                    case ClickMode.AddTreadBot:
-                        snapSound.Play();
-                        mapItems.Add(new TreadBot(treadTexture, currentMouseState.X, currentMouseState.Y));
-                        currentMode = ClickMode.SetTarget;
-                        break;
-
-                    case ClickMode.AddBuilding:
-                        snapSound.Play();
-                        mapItems.Add(new SimpleBuilding(buildingTextures[currentBuildingTexture], currentMouseState.X, currentMouseState.Y));
-                        currentMode = ClickMode.SetTarget;
-                        break;
+                    }
                 }
             }
 
-            // Update all the creatures
-            foreach (var item in mapItems)
+            if (lastMouseState.LeftButton == ButtonState.Released && currentMouseState.LeftButton == ButtonState.Pressed)
             {
-                item.Update(gameTime, mapItems);
+                DoBuild();
+            }
+
+            // Update all the items
+            if (!paused)
+            {
+                foreach (var item in mapItems)
+                {
+                    item.Update(gameTime, mapItems);
+                }
             }
 
             // Handle keyboard events
@@ -181,12 +167,18 @@ namespace BuildingsAndBaddies.Desktop
                 showFps = !showFps;
             }
 
+            if (currentKeyboardState.IsKeyDown(Keys.Space) && !lastKeyboardState.IsKeyDown(Keys.Space))
+            {
+                clickSound.Play();
+                paused = !paused;
+            }
+
             if (currentKeyboardState.IsKeyDown(Keys.Escape) && !lastKeyboardState.IsKeyDown(Keys.Escape))
             {
-                if (currentMode != ClickMode.SetTarget)
+                if (currentMode != ClickMode.Normal)
                 {
                     dropSound.Play();
-                    currentMode = ClickMode.SetTarget;
+                    currentMode = ClickMode.Normal;
                 }
             }
 
@@ -199,7 +191,7 @@ namespace BuildingsAndBaddies.Desktop
             if (currentKeyboardState.IsKeyDown(Keys.C) && !lastKeyboardState.IsKeyDown(Keys.C))
             {
                 dustbinSound.Play();
-                currentMode = ClickMode.SetTarget;
+                currentMode = ClickMode.Normal;
                 mapItems.Clear();
             }
 
@@ -262,9 +254,50 @@ namespace BuildingsAndBaddies.Desktop
                 spriteBatch.DrawString(defaultFont, "Debug", new Vector2(10, 875), Color.Black);
             }
 
+            if (paused)
+            {
+                // TODO - some sort of fancy "paused" overlay
+                const string pauseMsg = "Paused";
+                var size = defaultFont.MeasureString(pauseMsg);
+                var pos = new Vector2(MapWidth / 2f - size.X / 2, MapHeight / 2f - size.Y / 2);
+                spriteBatch.DrawString(defaultFont, pauseMsg, pos, Color.Red);
+            }
+
             spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+
+        private void DoBuild()
+        {
+            if (buildBlocked)
+            {
+                return;
+            }
+
+            switch (currentMode)
+            {
+                case ClickMode.AddGuardBot:
+                    snapSound.Play();
+                    mapItems.Add(new GuardBot(guardTexture, currentMouseState.X, currentMouseState.Y));
+                    break;
+
+                case ClickMode.AddHoverBot:
+                    snapSound.Play();
+                    mapItems.Add(new HoverBot(hoverTexture, currentMouseState.X, currentMouseState.Y));
+                    break;
+
+                case ClickMode.AddTreadBot:
+                    snapSound.Play();
+                    mapItems.Add(new TreadBot(treadTexture, currentMouseState.X, currentMouseState.Y));
+                    break;
+
+                case ClickMode.AddBuilding:
+                    snapSound.Play();
+                    mapItems.Add(new SimpleBuilding(buildingTextures[currentBuildingTexture], currentMouseState.X, currentMouseState.Y));
+                    break;
+            }
         }
 
 
@@ -306,8 +339,27 @@ namespace BuildingsAndBaddies.Desktop
 
             var sourceRectangle = new Rectangle(0, 0, width, height);
             var position = new Vector2(currentMouseState.X - width / 2, currentMouseState.Y - height / 2);
+            var targetRectangle = new Rectangle((int)position.X, (int)position.Y, width, height);
 
-            spriteBatch.Draw(texture, position, sourceRectangle, Color.White);
+            buildBlocked = false;
+            foreach (var item in mapItems)
+            {
+                if (item.Bounds.Intersects(targetRectangle))
+                {
+                    buildBlocked = true;
+                    break;
+                }
+            }
+
+            if (buildBlocked)
+            {
+                // TODO - need better way to indicate blocked build
+                spriteBatch.DrawRectangle(targetRectangle, Color.Red);
+            }
+            else
+            {
+                spriteBatch.Draw(texture, position, sourceRectangle, Color.White);
+            }
         }
     }
 }
