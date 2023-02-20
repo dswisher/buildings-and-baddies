@@ -27,6 +27,7 @@ namespace BuildingsAndBaddies.Desktop
         private SoundEffect clickSound;
         private SoundEffect dropSound;
         private SoundEffect dustbinSound;
+        private SoundEffect impactSound;
         private SoundEffect snapSound;
 
         private SpriteFont defaultFont;
@@ -71,6 +72,7 @@ namespace BuildingsAndBaddies.Desktop
             clickSound = Content.Load<SoundEffect>("sounds/click");
             dropSound = Content.Load<SoundEffect>("sounds/drop");
             dustbinSound = Content.Load<SoundEffect>("sounds/dustbin");
+            impactSound = Content.Load<SoundEffect>("sounds/impact");
             snapSound = Content.Load<SoundEffect>("sounds/snap");
 
             defaultFont = Content.Load<SpriteFont>("fonts/default");
@@ -125,7 +127,7 @@ namespace BuildingsAndBaddies.Desktop
             // Update all the creatures
             foreach (var creature in creatures)
             {
-                creature.Update(gameTime);
+                creature.Update(gameTime, creatures);
             }
 
             // Handle keyboard events

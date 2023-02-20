@@ -74,6 +74,12 @@
 /processorParam:Quality=Best
 /build:sounds/dustbin.wav
 
+#begin sounds/impact.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:sounds/impact.wav
+
 #begin sounds/snap.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor

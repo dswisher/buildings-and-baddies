@@ -6,17 +6,17 @@ namespace BuildingsAndBaddies.Desktop
 {
     public static class SpriteBatchExtensions
     {
-        private static Texture2D texture;
+        private static Texture2D shapeTexture;
 
         private static Texture2D GetTexture(SpriteBatch spriteBatch)
         {
-            if (texture == null)
+            if (shapeTexture == null)
             {
-                texture = new Texture2D(spriteBatch.GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
-                texture.SetData(new[] {Color.White});
+                shapeTexture = new Texture2D(spriteBatch.GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
+                shapeTexture.SetData(new[] {Color.White});
             }
 
-            return texture;
+            return shapeTexture;
         }
 
 
@@ -34,6 +34,23 @@ namespace BuildingsAndBaddies.Desktop
             var origin = new Vector2(0f, 0.5f);
             var scale = new Vector2(length, thickness);
             spriteBatch.Draw(GetTexture(spriteBatch), point, null, color, angle, origin, scale, SpriteEffects.None, 0);
+        }
+
+
+        // Based on https://github.com/craftworkgames/MonoGame.Extended/blob/develop/src/cs/MonoGame.Extended/Math/ShapeExtensions.cs
+        public static void DrawRectangle(this SpriteBatch spriteBatch, Rectangle rect, Color color, float thickness = 1f)
+        {
+            var texture = GetTexture(spriteBatch);
+            var topLeft = new Vector2(rect.X, rect.Y);
+            var topRight = new Vector2(rect.Right - thickness, rect.Y);
+            var bottomLeft = new Vector2(rect.X, rect.Bottom - thickness);
+            var horizontalScale = new Vector2(rect.Width, thickness);
+            var verticalScale = new Vector2(thickness, rect.Height);
+
+            spriteBatch.Draw(texture, topLeft, null, color, 0f, Vector2.Zero, horizontalScale, SpriteEffects.None, 0);
+            spriteBatch.Draw(texture, topLeft, null, color, 0f, Vector2.Zero, verticalScale, SpriteEffects.None, 0);
+            spriteBatch.Draw(texture, topRight, null, color, 0f, Vector2.Zero, verticalScale, SpriteEffects.None, 0);
+            spriteBatch.Draw(texture, bottomLeft, null, color, 0f, Vector2.Zero, horizontalScale, SpriteEffects.None, 0);
         }
     }
 }
