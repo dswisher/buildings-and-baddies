@@ -55,6 +55,8 @@ Other keys initiate behaviors from the villagers and/or baddies.
 
 # TODO List
 
+* Refactor `Game1.cs` so it is a little more manageable
+* Buildings should snap to grid
 * Add Pathfinding
 * Add a way to build multiple items at once
 * Add baddies
