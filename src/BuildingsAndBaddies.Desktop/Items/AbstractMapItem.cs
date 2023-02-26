@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
+using BuildingsAndBaddies.Desktop.Grid;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -33,10 +34,13 @@ namespace BuildingsAndBaddies.Desktop.Items
             Bounds = new Rectangle(x - width / 2, y - height / 2, width, height);
 
             frameThreshold = 250;
+
+            IsFixed = this is SimpleBuilding;
         }
 
 
         public Rectangle Bounds { get; protected set; }
+        public bool IsFixed { get; }
 
         protected int Width { get; }
         protected int Height { get; }

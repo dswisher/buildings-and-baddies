@@ -21,8 +21,8 @@ Keys:
 * G - enter guard bot building mode
 * H - enter hover bot building mode
 * P - toggle display of the path grid
+* Q - exit the game
 * T - enter tread bot building mode
-* X - exit the game
 * ESC - exit build mode
 * SPACE - pause the game
 
@@ -56,11 +56,15 @@ Other keys initiate behaviors from the villagers and/or baddies.
 # TODO List
 
 * Add Pathfinding
-  * Add a unit that is smaller than the current ones, add a unit that is larger than the current ones
+  * Add a unit that is smaller than the current ones (less than 1 CellSize), add a unit that is larger than the current ones (more then 2*CellSize)
+  * Add a way to quickly plop down a predefined set of buildings
+  * Implement something basic, like breadth-first
   * Implement simple A* - when destination specified, units calc path to destination and follows that path, clearance ignored
   * Enhance to use clearance-based pathing
   * If unit is "stuck", recalculate path
   * Multiple units going to same destination should follow-the-leader
+* Load/save game settings
+* Add a details "popup" to show information about the unit under the cursor, to debug glitches
 * Add some sort of selection mode (select all hover bots, etc)
 * Add a "build menu", so one key opens a "dialog" where user can choose what to build
 * Refactor `Game1.cs` so it is a little more manageable
@@ -82,6 +86,7 @@ Other keys initiate behaviors from the villagers and/or baddies.
 # Links
 
 * [Piskel](https://www.piskelapp.com/p/create/sprite) is a handy online sprite editor
+* [MonoGame Color Chart](http://www.foszor.com/blog/xna-color-chart/)
 * Pathfinding
   * Red Blob Games: [Intro to A*](https://www.redblobgames.com/pathfinding/a-star/introduction.html) - [A* Implementation](https://www.redblobgames.com/pathfinding/a-star/implementation.html)
   * [A* Pathfinding for Beginners](https://web.archive.org/web/20100212030833/http://www.policyalmanac.org/games/aStarTutorial.htm) (via Wayback Machine)
@@ -93,6 +98,8 @@ Other keys initiate behaviors from the villagers and/or baddies.
 * Tutorial - [Monogame - Drawing Text With Spritefonts](http://rbwhitaker.wikidot.com/monogame-drawing-text-with-spritefonts)
 * Tutorials - Oyyou - [youtube](https://www.youtube.com/playlist?list=PLV27bZtgVIJqoeHrQq6Mt_S1-Fvq_zzGZ) - [github](https://github.com/Oyyou/MonoGame_Tutorials)
 * Library - [Apos.Shapes](https://github.com/Apostolique/Apos.Shapes) - something to consider, to replace DrawLine helper?
+* Dev Quickies (MonoGame Short Tutorial Vids)
+  * Prototype Pattern - [Github](https://github.com/LubiiiCZ/DevQuickie/tree/master/Quickie018-PrototypeDesignPattern) - [YouTube](https://www.youtube.com/watch?v=tZFMZ5KQ2yQ)
 * UI libraries to try out someday:
     * [Myra](https://github.com/rds1983/Myra) - UI Library for MonoGame, FNA and Stride
     * [MGUI](https://github.com/Videogamers0/MGUI) - UI framework for MonoGame game engine.

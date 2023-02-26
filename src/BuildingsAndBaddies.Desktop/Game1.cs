@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
+using BuildingsAndBaddies.Desktop.Grid;
 using BuildingsAndBaddies.Desktop.Items;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
@@ -186,7 +187,7 @@ namespace BuildingsAndBaddies.Desktop
                 }
             }
 
-            if (currentKeyboardState.IsKeyDown(Keys.X) && !lastKeyboardState.IsKeyDown(Keys.X))
+            if (currentKeyboardState.IsKeyDown(Keys.Q) && !lastKeyboardState.IsKeyDown(Keys.Q))
             {
                 // TODO - how to play a sound effect and have the game wait until done?
                 Exit();
@@ -199,7 +200,7 @@ namespace BuildingsAndBaddies.Desktop
 
                 foreach (var item in mapItems)
                 {
-                    pathGrid.RemoveItem(item.Bounds);
+                    pathGrid.RemoveItem(item.Bounds, item.IsFixed);
                 }
 
                 mapItems.Clear();
@@ -318,7 +319,7 @@ namespace BuildingsAndBaddies.Desktop
             snapSound.Play();
             mapItems.Add(item);
 
-            pathGrid.AddItem(item.Bounds);
+            pathGrid.AddItem(item.Bounds, item.IsFixed);
         }
 
 

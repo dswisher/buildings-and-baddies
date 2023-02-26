@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using BuildingsAndBaddies.Desktop.Grid;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -48,9 +49,12 @@ namespace BuildingsAndBaddies.Desktop.Items
             var start = new Point((int)Position.X, (int)Position.Y);
             var finish = new Point(x, y);
 
-            waypoints = pathGrid.FindPath(start, finish);
+            waypoints = pathGrid.FindPath((int)Position.X, (int)Position.Y, x, y);
 
-            target = waypoints.Pop();
+            if (waypoints != null && waypoints.Count > 0)
+            {
+                target = waypoints.Pop();
+            }
         }
 
 
@@ -94,14 +98,14 @@ namespace BuildingsAndBaddies.Desktop.Items
                 if (delta != Vector2.Zero)
                 {
                     // Remove the old position from the grid
-                    pathGrid.RemoveItem(Bounds);
+                    pathGrid.RemoveItem(Bounds, IsFixed);
 
                     // Update the position and the bounds
                     Position += delta;
                     Bounds = new Rectangle((int)(Position.X - Width / 2f), (int)(Position.Y - Height / 2f), Width, Height);
 
                     // Add the new position into the grid
-                    pathGrid.AddItem(Bounds);
+                    pathGrid.AddItem(Bounds, IsFixed);
                 }
             }
             else
