@@ -55,16 +55,20 @@ Other keys initiate behaviors from the villagers and/or baddies.
 
 # TODO List
 
+* Add Pathfinding
+  * Add a unit that is smaller than the current ones, add a unit that is larger than the current ones
+  * Implement simple A* - when destination specified, units calc path to destination and follows that path, clearance ignored
+  * Enhance to use clearance-based pathing
+  * If unit is "stuck", recalculate path
+  * Multiple units going to same destination should follow-the-leader
+* Add some sort of selection mode (select all hover bots, etc)
+* Add a "build menu", so one key opens a "dialog" where user can choose what to build
 * Refactor `Game1.cs` so it is a little more manageable
 * Buildings should snap to grid
-* Add Pathfinding
-* Add a way to build multiple items at once
 * Add baddies
 * Add health bars
 * Add targeting
 * Add projectiles and damage
-* Do not let bots be added on top of other bots/buildings
-* Add some sort of selection mode (select all hover bots, etc)
 
 
 # Art and Sound Credits
@@ -78,6 +82,10 @@ Other keys initiate behaviors from the villagers and/or baddies.
 # Links
 
 * [Piskel](https://www.piskelapp.com/p/create/sprite) is a handy online sprite editor
+* Pathfinding
+  * Red Blob Games: [Intro to A*](https://www.redblobgames.com/pathfinding/a-star/introduction.html) - [A* Implementation](https://www.redblobgames.com/pathfinding/a-star/implementation.html)
+  * [A* Pathfinding for Beginners](https://web.archive.org/web/20100212030833/http://www.policyalmanac.org/games/aStarTutorial.htm) (via Wayback Machine)
+  * Dotnet [Priority Queue](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.priorityqueue-2?view=net-6.0) - [Example](https://dotnetcoretutorials.com/2021/03/17/priorityqueue-in-net/)
 * Collision libraries
     * [MonoGame.Extended.Collisions](https://www.monogameextended.net/docs/features/collision/collision) - part of [MonoGame.Extended](https://github.com/craftworkgames/MonoGame.Extended)
 * Look at [TexturePacker](https://www.codeandweb.com/texturepacker) for building sprite sheets - [monogame tutorial](https://www.codeandweb.com/texturepacker/tutorials/how-to-create-sprite-sheets-and-animations-with-monogame)
