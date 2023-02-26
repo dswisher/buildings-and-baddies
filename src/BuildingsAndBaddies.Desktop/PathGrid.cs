@@ -1,8 +1,8 @@
 // Copyright (c) Doug Swisher. All Rights Reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -42,6 +42,7 @@ namespace BuildingsAndBaddies.Desktop
 
         public void AddItem(Rectangle bounds)
         {
+            // TODO - need to differentiate between fixed items (buildings) and mobile items (units)
             foreach (var cell in GetCells(bounds))
             {
                 cell.NumOccupants += 1;
@@ -51,10 +52,35 @@ namespace BuildingsAndBaddies.Desktop
 
         public void RemoveItem(Rectangle bounds)
         {
+            // TODO - need to differentiate between fixed items (buildings) and mobile items (units)
             foreach (var cell in GetCells(bounds))
             {
                 cell.NumOccupants -= 1;
             }
+        }
+
+
+        public Stack<Vector2> FindPath(Point start, Point finish)
+        {
+            // TODO - HACK - build a real path! For now, just pick two random waypoints
+            var waypoints = new Stack<Vector2>();
+            waypoints.Push(new Vector2(finish.X, finish.Y));
+
+            var chaos = new Random(start.GetHashCode());
+            var num = chaos.Next(1, 3);
+
+            while (waypoints.Count < num)
+            {
+                var x = chaos.Next(1, width - 2);
+                var y = chaos.Next(1, height - 2);
+
+                if (grid[x, y].NumOccupants == 0)
+                {
+                    waypoints.Push(new Vector2(x * CellSize, y * CellSize));
+                }
+            }
+
+            return waypoints;
         }
 
 
@@ -90,10 +116,10 @@ namespace BuildingsAndBaddies.Desktop
 
         private IEnumerable<GridCell> GetCells(Rectangle mapRect)
         {
-            int x1 = mapRect.Left / CellSize;
-            int x2 = mapRect.Right / CellSize;
-            int y1 = mapRect.Top / CellSize;
-            int y2 = mapRect.Bottom / CellSize;
+            int x1 = Math.Clamp(mapRect.Left / CellSize, 0, width - 1);
+            int x2 = Math.Clamp(mapRect.Right / CellSize, 0, width - 1);
+            int y1 = Math.Clamp(mapRect.Top / CellSize, 0, height - 1);
+            int y2 = Math.Clamp(mapRect.Bottom / CellSize, 0, height - 1);
 
             for (var x = x1; x <= x2; x++)
             {

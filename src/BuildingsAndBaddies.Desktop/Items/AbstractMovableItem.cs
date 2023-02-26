@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -12,6 +13,7 @@ namespace BuildingsAndBaddies.Desktop.Items
     {
         private readonly float speed;
 
+        private Stack<Vector2> waypoints;
         private Vector2 target;
         private bool moving;
 
@@ -43,8 +45,12 @@ namespace BuildingsAndBaddies.Desktop.Items
         /// <param name="pathGrid">The path grid used to find a path.</param>
         public void Goto(int x, int y, PathGrid pathGrid)
         {
-            // TODO - need to find a path
-            target = new Vector2(x, y);
+            var start = new Point((int)Position.X, (int)Position.Y);
+            var finish = new Point(x, y);
+
+            waypoints = pathGrid.FindPath(start, finish);
+
+            target = waypoints.Pop();
         }
 
 
@@ -100,8 +106,17 @@ namespace BuildingsAndBaddies.Desktop.Items
             }
             else
             {
-                moving = false;
-                target = Position;
+                // We have reached the current target. If this was just a waypoint along the path, set the next
+                // waypoint as the new target. Otherwise, we are done moving.
+                if (waypoints != null && waypoints.Any())
+                {
+                    target = waypoints.Pop();
+                }
+                else
+                {
+                    moving = false;
+                    target = Position;
+                }
             }
         }
 
@@ -116,6 +131,14 @@ namespace BuildingsAndBaddies.Desktop.Items
                 {
                     spriteBatch.DrawLine(Position, target, Color.Red);
                     spriteBatch.DrawRectangle(Bounds, Color.Red);
+
+                    var last = target;
+                    foreach (var way in waypoints)
+                    {
+                        spriteBatch.DrawLine(last, way, Color.Blue);
+
+                        last = way;
+                    }
                 }
                 else
                 {
